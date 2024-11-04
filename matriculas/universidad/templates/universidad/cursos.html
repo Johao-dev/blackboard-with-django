@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Cursos - UTP</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'universidad/css/cursos.css' %}" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="sidebar">
+      {% load static %}
+      <img src="{% static 'universidad/img/logologin.webp' %}" alt="UTP Logo" class="logo" />
+      <a href="{% url 'blackboard' %}" class="menu-item">
+        <div class="menu-item-icon">
+          <i class="fas fa-user"></i>
+        </div>
+        Perfil
+      </a>
+      <a href="#" class="menu-item active">
+        <div class="menu-item-icon">
+          <i class="fas fa-book"></i>
+        </div>
+        Cursos
+      </a>
+      <a href="{% url 'cronograma' %}" class="menu-item">
+        <div class="menu-item-icon">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        Cronograma de pagos
+      </a>
+    </div>
+    <div class="content">
+      <div class="header">
+        <h1>Mis cursos</h1>
+        <h2>2024-Ciclo 1 (Actual)</h2>
+      </div>
+      <div class="courses-grid">
+        {% for curso in cursos %}
+        <div class="course-card">
+          <div class="course-image">
+            {% load static %}
+            <img src="{% static 'universidad/img/plataformacursos.jpg' %}" alt="Ilustración del curso" />
+          </div>
+          <div class="course-info">
+            <h3>{{ curso.nombre_curso }}</h3>
+            <p class="course-code">Codigo del curso: {{ curso.codigo_curso }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

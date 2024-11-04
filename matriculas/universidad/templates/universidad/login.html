@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login UTP</title>
+  <link rel="stylesheet" href="{% static 'universidad/css/login.css' %}" />
+</head>
+
+<body>
+  <div class="glass-container">
+    <div class="login-box">
+      {% load static %}
+      <img src="{% static 'universidad/img/logologin.webp' %}" alt="Login Logo" class="login-logo" />
+      <form method="POST">
+        <input type="email" id="username" required placeholder="Correo" />
+        <input type="password" id="password" name="password" required placeholder="Contraseña" />
+        <div class="options">
+          <input type="checkbox" id="remember" name="remember" />
+          <label for="remember">Recordarme</label>
+        </div>
+        <button type="submit" id="btn-ingresar">Ingresar</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    document.getElementById('btn-ingresar').addEventListener('click', function (e) {
+      e.preventDefault();
+      fetch('/universidad/logging/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+          correo: document.getElementById('username').value,
+          contrasena: document.getElementById('password').value,
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.redirect_url) {
+            window.location.href = data.redirect_url;
+          } else if (data.mensaje) {
+            console.error(`Error en la peticion: ${data.mensaje}`);
+          }
+        })
+        .catch(err => {
+          console.error(`Error en la petición: ${err.message}`);
+        });
+    });
+
+    function getCSRFToken() {
+      const name = 'csrftoken';
+      const cookieValue = document.cookie.split('; ')
+        .find(row => row.startsWith(name))
+        ?.split('=')[1];
+      return cookieValue;
+    }
+  </script>
+</body>
+
+</html>

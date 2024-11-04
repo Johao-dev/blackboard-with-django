@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formulario de Registro UTP</title>
+  <link rel="stylesheet" href="{% static 'universidad/css/matricula.css' %}" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="promo-section">
+      <div class="promo-content">
+        <h2>POSTULA HOY A UTP</h2>
+        <div class="vacancies">ÚLTIMAS VACANTES</div>
+      </div>
+      {% load static %}
+      <img src="{% static 'universidad/img/Matricula1.jpeg' %}" alt="Estudiantes de UTP" class="promo-image" />
+    </div>
+    <div class="form-section">
+      <h3>Regístrate para matricularte</h3>
+      <form id="registrationForm" method="POST">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="form-group">
+            <label for="career">Seleccione la carrera</label>
+            <select id="career" name="career" required>
+              <option value="">Seleccione la carrera</option>
+              <option value="Ingeniería">Ingeniería</option>
+              <option value="Negocios">Negocios</option>
+              <option value="Ciencias de la Salud">Ciencias de la Salud</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="campus">Escoge el campus</label>
+            <select id="campus" name="campus" required>
+              <option value="">Escoge el campus</option>
+              <option value="Lima">Lima</option>
+              <option value="Trujillo">Trujillo</option>
+              <option value="Cajamarca">Cajamarca</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="fullName">Nombres y apellidos</label>
+          <input type="text" id="fullName" name="fullName" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dni">DNI</label>
+            <input type="text" id="dni" name="dni" required />
+          </div>
+          <div class="form-group">
+            <label for="phone">Celular</label>
+            <input type="tel" id="phone" name="phone" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">Correo</label>
+          <input type="text" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="consent1" name="consent1" required />
+            <label for="consent1">Autorizo el tratamiento de mis datos personales para
+              finalidades informativas y comerciales conforme al siguiente
+              enlace. Sin mi autorización no podrán comunicarse
+              conmigo.</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="consent2" name="consent2" />
+            <label for="consent2">Opcionalmente, autorizo el tratamiento de mis datos personales
+              para las Finalidades Comerciales Adicionales descritas en el
+              siguiente enlace.</label>
+          </div>
+        </div>
+        <button type="submit" id="btn-matricular">ENVIAR</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    document.getElementById('btn-matricular').addEventListener('click', function (e) {
+      e.preventDefault(); // detiene el evento por defecto del formulario
+      fetch('/universidad/matricular/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
+        },
+        body: JSON.stringify({
+          career: document.getElementById('career').value,
+          campus: document.getElementById('campus').value,
+          fullName: document.getElementById('fullName').value,
+          dni: document.getElementById('dni').value,
+          phone: document.getElementById('phone').value,
+          email: document.getElementById('email').value,
+        })
+      })
+      .then(response => {
+        if(response.redirected) {
+          window.location.href = response.url;
+        } else {
+          return response.json();
+        }
+      })
+      .catch(err => {
+        console.error(`Error en la petición: ${err.message}`);
+      });
+    });
+
+    function getCSRFToken() {
+      const name = 'csrftoken';
+      const cookieValue = document.cookie.split('; ')
+        .find(row => row.startsWith(name))
+        ?.split('=')[1];
+      return cookieValue;
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfil de alumno - UTP</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'universidad/css/blackboard.css' %}" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="sidebar">
+      {% load static %}
+      <img id="fotoutplogin" src="{% static 'universidad/img/logologin.webp' %}" alt="UTP Logo" class="logo" />
+      <a href="#" class="menu-item active">
+        <div class="menu-item-icon">
+          <i class="fas fa-user"></i>
+        </div>
+        Perfil
+      </a>
+      <a href="#" class="menu-item" onclick="cargarCursos(event)">
+        <div class="menu-item-icon">
+          <i class="fas fa-book"></i>
+        </div>
+        Cursos
+      </a>
+      <a href="#" class="menu-item" onclick="cargarCronograma(event)">
+        <div class="menu-item-icon">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        Cronograma de pagos
+      </a>
+    </div>
+    <script>
+      function cargarCursos(event) {
+        event.preventDefault();
+        fetch('/universidad/blackboard/obtener_cursos/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+          },
+          body: JSON.stringify({
+            codigo_alumno: '{{ alumno.codigo_alumno }}'
+          })
+        })
+         .then(response => response.json())
+         .then(data => {
+            if (data.redirect_url) {
+              window.location.href = data.redirect_url;
+            } else if (data.mensaje) {
+            console.error(`Error en la peticion: ${data.mensaje}`);
+            }
+          })
+          .catch(err => {
+            console.error(`Error en la peticion: ${err.message}`);
+          });
+      }
+
+      function cargarCronograma(event) {
+        event.preventDefault();
+        fetch('/universidad/blackboard/obtener_cuotas/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+          },
+          body: JSON.stringify({
+            codigo_alumno: '{{ alumno.codigo_alumno }}'
+          })
+        })
+         .then(response => response.json())
+         .then(data => {
+            if (data.redirect_url) {
+              window.location.href = data.redirect_url;
+            } else if (data.mensaje) {
+              console.error(`Error en la peticion: ${data.mensaje}`);
+            }
+          })
+         .catch(err => {
+            console.error(`Error en la peticion: ${err.message}`);
+          });
+      }
+
+      function getCSRFToken() {
+      const name = 'csrftoken';
+      const cookieValue = document.cookie.split('; ')
+        .find(row => row.startsWith(name))
+        ?.split('=')[1];
+      return cookieValue;
+      }
+    </script>
+    <div class="content">
+      <div class="header">Perfil de alumno</div>
+      <div class="profile-info">
+        {% load static %}
+        <img src="{% static 'universidad/img/iconoperfil.png' %}" alt="Foto de perfil" class="profile-pic" />
+        <div class="profile-name">{{ alumno.nombre_completo }}</div>
+        <div class="profile-email">{{ alumno.correo_institucional }}</div>
+      </div>
+      <div class="details">
+        <div>
+          <label for="nombres">NOMBRES COMPLETOS :</label>
+          <input type="text" id="nombres" value="{{ alumno.nombre_completo }}" readonly />
+        </div>
+        <div>
+          <label for="genero">GENERO :</label>
+          <input type="text" id="genero" value="{{ alumno.genero }}" readonly />
+        </div>
+        <div>
+          <label for="correo">CORREO INSTITUCIONAL :</label>
+          <input type="text" id="correo" value="{{ alumno.correo_institucional }}" readonly />
+        </div>
+        <div>
+          <label for="carrera">CARRERA :</label>
+          <input type="text" id="carrera" value="{{ carrera }}" readonly />
+        </div>
+        <div>
+          <label for="id">ID DE ESTUDIANTE :</label>
+          <input type="text" id="id" value="{{ alumno.codigo_alumno }}" readonly />
+        </div>
+        <div>
+          <label for="fecha">FECHA DE NACIMIENTO :</label>
+          <input type="text" id="fecha" value="{{ alumno.fecha_nacimiento }}" readonly />
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

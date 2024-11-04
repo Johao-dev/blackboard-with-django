@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cronograma de pagos - UTP</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="{% static 'universidad/css/cronograma.css' %}" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="sidebar">
+      {% load static %}
+      <img src="{% static 'universidad/img/logologin.webp' %}" alt="UTP Logo" class="logo" />
+      <a href="{% url 'blackboard' %}" class="menu-item">
+        <div class="menu-item-icon">
+          <i class="fas fa-user"></i>
+        </div>
+        Perfil
+      </a>
+      <a href="{% url 'cursos' %}" class="menu-item">
+        <div class="menu-item-icon">
+          <i class="fas fa-book"></i>
+        </div>
+        Cursos
+      </a>
+      <a href="#" class="menu-item active">
+        <div class="menu-item-icon">
+          <i class="fas fa-calendar-alt"></i>
+        </div>
+        Cronograma de pagos
+      </a>
+    </div>
+    <div class="content">
+      <div class="header">
+        <h1>Cronograma de pagos</h1>
+        <h2>2024-Ciclo 1 (Actual)</h2>
+      </div>
+      <div class="payments-grid">
+        {% for cuota in cuotas %}
+          {% if cuota.estado_cuota != 'pagado' %}
+            <div class="payment-card">
+              <h3>Cuota {{ cuota.cuota }}</h3>
+              <p class="amount">Total pagar: {{ cuota.importe }} S/.</p>
+              <p class="due-date">Fecha vencimiento: {{ cuota.fecha_vencimiento }}</p>
+              <a href="#" onclick="cargarCuota(event, '{{ cuota.cuota_id }}', '{{ cuota.matricula_id }}')">
+                <button class="pay-button">PAGAR</button>
+              </a>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <script>
+        function cargarCuota(event, cuota_id, matricula_id) {
+          event.preventDefault();
+          fetch('/universidad/blackboard/cronograma/cargar_datos_cuota/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+              cuota_id: cuota_id,
+              matricula_id: matricula_id
+            })
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+              } else if (data.mensaje) {
+                console.error(`Error en la peticion: ${data.mensaje}`);
+              }
+            })
+            .catch(err => {
+              console.error(`Error en la peticion: ${err.message}`);
+            });
+        }
+
+        function getCSRFToken() {
+          const name = 'csrftoken';
+          const cookieValue = document.cookie.split('; ')
+            .find(row => row.startsWith(name))
+            ?.split('=')[1];
+          return cookieValue;
+        }
+      </script>
+    </div>
+  </div>
+</body>
+
+</html>
